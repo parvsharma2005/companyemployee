@@ -42,7 +42,6 @@ class EmployeeDetailUpdateView(APIView):
 
         serializer = EmployeeSerializer(employee)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
     def put(self, request, id):
         try:
             employee = Employee.objects.get(id=id)
@@ -52,7 +51,11 @@ class EmployeeDetailUpdateView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = EmployeeSerializer(employee, data=request.data)
+        serializer = EmployeeSerializer(
+            employee,
+            data=request.data,
+            partial=True
+        )
 
         if serializer.is_valid():
             serializer.save()

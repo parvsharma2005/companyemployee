@@ -4,5 +4,5 @@ from .models import *
 
 class companySerializer(serializers.ModelSerializer):
     class Meta:
-        model = company
+        model = Company
         fields = '__all__'

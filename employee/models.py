@@ -1,4 +1,5 @@
 from django.db import models
+from company.models import *
 import uuid
 # needmsndsm
 
@@ -18,8 +19,12 @@ class Employee(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     department = models.TextField(blank=True)
-    
-
+    company = models.ForeignKey(
+        Company,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
     def __str__(self):
         return self.name
     

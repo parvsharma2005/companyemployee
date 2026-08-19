@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 
-class company(models.Model):
+class Company(models.Model):
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -13,6 +13,9 @@ class company(models.Model):
     phone = models.CharField(max_length=10)
     address = models.TextField()
     website = models.URLField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     established = models.DateTimeField(auto_now=True)
+    
     
     
