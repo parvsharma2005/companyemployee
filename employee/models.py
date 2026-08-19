@@ -29,3 +29,6 @@ class Employee(models.Model):
         return self.name
     
     
+    #Creating new branch (Department)
+        
+    
