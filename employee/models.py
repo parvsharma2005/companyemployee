@@ -1,6 +1,7 @@
 from django.db import models
 from company.models import Company
 from department.models import Department
+from django.contrib.auth.models import User
 import uuid
 
 
@@ -53,6 +54,24 @@ class Employee(models.Model):
         blank=True,
         related_name="employees"
     )
+    
+    manager = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="team_members"
+        )
+    
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="employee"
+    )
+    
+    
 
     def __str__(self):
         return self.name

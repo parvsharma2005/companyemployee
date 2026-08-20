@@ -15,7 +15,7 @@ urlpatterns = [
     ),
 
     path(
-        '<uuid:id>/',
+        'departmentupdate/<str:id>/',
         DepartmentDetailView.as_view(),
         name='department-detail'
     ),

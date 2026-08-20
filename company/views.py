@@ -8,8 +8,8 @@ from .serializers import *
 class companyListCreateView(APIView):
 
     def get(self, request):
-        company = company.objects.all()
-        serializer = companySerializer(employees, many=True)
+        company = Company.objects.all()
+        serializer = companySerializer(company, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -29,29 +29,35 @@ class companyListCreateView(APIView):
 
 
 class companyDetailUpdateView(APIView):
-
     def get(self, request, id):
         try:
-            company = company.objects.get(id=id)
-        except company.DoesNotExist:
+            company = Company.objects.get(id=id)
+        except Company.DoesNotExist:
             return Response(
                 {"message": "company not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = companySerializer(employee)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = companySerializer(company)
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
 
     def put(self, request, id):
         try:
-            company = company.objects.get(id=id)
-        except company.DoesNotExist:
+            company = Company.objects.get(id=id)
+        except Company.DoesNotExist:
             return Response(
                 {"message": "company not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = companySerializer(company, data=request.data)
+        serializer = companySerializer(
+            company,
+            data=request.data
+        )
 
         if serializer.is_valid():
             serializer.save()
@@ -65,10 +71,11 @@ class companyDetailUpdateView(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+
     def delete(self, request, id):
         try:
-            company = company.objects.get(id=id)
-        except company.DoesNotExist:
+            company = Company.objects.get(id=id)
+        except Company.DoesNotExist:
             return Response(
                 {"message": "company not found"},
                 status=status.HTTP_404_NOT_FOUND
