@@ -1,23 +1,28 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from .models import *
-from .serializers import *
+from rest_framework import *
+
+from .models import Company
+from .serializers import companySerializer
 
 
 class companyListCreateView(APIView):
 
     def get(self, request):
-        company = Company.objects.all()
-        serializer = companySerializer(company, many=True)
+        companies = Company.objects.all()
+        serializer = companySerializer(companies, many=True)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
 
     def post(self, request):
         serializer = companySerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
+
             return Response(
                 serializer.data,
                 status=status.HTTP_201_CREATED
@@ -25,36 +30,47 @@ class companyListCreateView(APIView):
 
         return Response(
             serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST)
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class companyDetailUpdateView(APIView):
 
     def get(self, request, id):
         try:
-            company = company.objects.get(id=id)
-        except company.DoesNotExist:
+            company = Company.objects.get(id=id)
+
+        except Company.DoesNotExist:
             return Response(
                 {"message": "company not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = companySerializer(employee)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = companySerializer(company)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
 
     def put(self, request, id):
         try:
             company = Company.objects.get(id=id)
-        except company.DoesNotExist:
+
+        except Company.DoesNotExist:
             return Response(
                 {"message": "company not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = companySerializer(company, data=request.data)
+        serializer = companySerializer(
+            company,
+            data=request.data
+        )
 
         if serializer.is_valid():
             serializer.save()
+
             return Response(
                 serializer.data,
                 status=status.HTTP_200_OK
@@ -67,8 +83,9 @@ class companyDetailUpdateView(APIView):
 
     def delete(self, request, id):
         try:
-            company = company.objects.get(id=id)
-        except company.DoesNotExist:
+            company = Company.objects.get(id=id)
+
+        except Company.DoesNotExist:
             return Response(
                 {"message": "company not found"},
                 status=status.HTTP_404_NOT_FOUND
@@ -78,5 +95,5 @@ class companyDetailUpdateView(APIView):
 
         return Response(
             {"message": "company deleted successfully"},
-            status=status.HTTP_204_NO_CONTENT
+            status=status.HTTP_200_OK
         )

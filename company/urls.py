@@ -10,7 +10,7 @@ urlpatterns = [
     ),
 
     path(
-        'company/<str:id>/',
+        'company/<uuid:id>/',
         companyDetailUpdateView.as_view(),
         name='company-detail'
     ),

@@ -15,7 +15,7 @@ class Company(models.Model):
     website = models.URLField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    established = models.DateTimeField(auto_now=True)
+    established = models.DateField()
     
     
     
