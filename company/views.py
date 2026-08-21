@@ -8,8 +8,8 @@ from .serializers import *
 class companyListCreateView(APIView):
 
     def get(self, request):
-        company = company.objects.all()
-        serializer = companySerializer(employees, many=True)
+        company = Company.objects.all()
+        serializer = companySerializer(company, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -44,7 +44,7 @@ class companyDetailUpdateView(APIView):
 
     def put(self, request, id):
         try:
-            company = company.objects.get(id=id)
+            company = Company.objects.get(id=id)
         except company.DoesNotExist:
             return Response(
                 {"message": "company not found"},

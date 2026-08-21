@@ -1,12 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Employee
 from .serializers import EmployeeSerializer
 
 
 class EmployeeListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         employees = Employee.objects.all()
@@ -30,6 +32,7 @@ class EmployeeListCreateView(APIView):
 
 
 class EmployeeDetailUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, id):
         try:
