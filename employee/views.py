@@ -4,31 +4,16 @@ import io
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
 
 from .models import Employee
 from .serializers import *
 
 
 class EmployeeListCreateView(APIView):
-    permission_classes = [AllowAny]
 
     def get(self, request):
-
-        department_id = request.query_params.get("department")
-        company_id = request.query_params.get("company")
-
+        
         employees = Employee.objects.all()
-
-        if department_id:
-            employees = employees.filter(
-                department_id=department_id
-            )
-
-        if company_id:
-            employees = employees.filter(
-                department__company_id=company_id
-            )
 
         serializer = EmployeeSerializer(
             employees,
@@ -39,6 +24,7 @@ class EmployeeListCreateView(APIView):
             serializer.data,
             status=status.HTTP_200_OK
         )
+       
 
     def post(self, request):
 
@@ -61,7 +47,6 @@ class EmployeeListCreateView(APIView):
 
 
 class EmployeeDetailUpdateView(APIView):
-    permission_classes = [AllowAny]
 
     def get(self, request, id):
 
@@ -131,7 +116,6 @@ class EmployeeDetailUpdateView(APIView):
 
 
 class EmployeeBulkUploadView(APIView):
-    permission_classes = [AllowAny]
 
     def post(self, request):
 
@@ -227,4 +211,46 @@ class EmployeeBulkCreateView(APIView):
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
+        )
+        
+
+         
+        
+        
+         #  search to filter to search employee.
+        # Search employee
+class EmployeeSearchView(APIView):
+
+    def get(self, request):
+
+        search = request.query_params.get("search")
+
+        if not search:
+            return Response(
+                {
+                    "message": "Please provide employee name"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        employees = Employee.objects.filter(
+            name__iexact=search
+        )
+
+        if not employees.exists():
+            return Response(
+                {
+                    "message": "Employee not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = EmployeeSerializer(
+            employees,
+            many=True
+        )
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
         )

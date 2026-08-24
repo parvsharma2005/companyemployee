@@ -9,6 +9,12 @@ urlpatterns = [
         EmployeeListCreateView.as_view(),
         name="employee-list-create"
     ),
+    
+    path(
+    "employees/search/",
+    EmployeeSearchView.as_view(),
+    name="employee-search"
+),
 
     path(
         "employees/bulk-upload/",
@@ -25,5 +31,4 @@ urlpatterns = [
         "bulk-create/",
         EmployeeBulkCreateView.as_view()
     ),
-    
 ]
