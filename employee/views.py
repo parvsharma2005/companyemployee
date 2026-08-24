@@ -7,14 +7,23 @@ from rest_framework import status
 
 from .models import Employee
 from .serializers import *
-
+from rest_framework.pagination import PageNumberPagination
 
 class EmployeeListCreateView(APIView):
 
     def get(self, request):
-        
-        employees = Employee.objects.all()
 
+        employees = Employee.objects.all()
+        
+        
+        # Ordering
+        ordering = request.query_params.get("ordering")
+
+        if ordering:
+            employees = employees.order_by(ordering)
+    
+        
+        
         serializer = EmployeeSerializer(
             employees,
             many=True
@@ -24,7 +33,7 @@ class EmployeeListCreateView(APIView):
             serializer.data,
             status=status.HTTP_200_OK
         )
-       
+        
 
     def post(self, request):
 
@@ -211,18 +220,15 @@ class EmployeeBulkCreateView(APIView):
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
-        )
+        )    
         
-
          
-        
-        
-         #  search to filter to search employee.
         # Search employee
 class EmployeeSearchView(APIView):
 
     def get(self, request):
 
+        # Search
         search = request.query_params.get("search")
 
         if not search:
@@ -237,6 +243,7 @@ class EmployeeSearchView(APIView):
             name__iexact=search
         )
 
+        # Employee not found
         if not employees.exists():
             return Response(
                 {
@@ -245,12 +252,30 @@ class EmployeeSearchView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = EmployeeSerializer(
+        # Ordering
+        ordering = request.query_params.get("ordering")
+
+        if ordering:
+            employees = employees.order_by(ordering)
+
+        # Pagination
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+
+        paginated_employees = paginator.paginate_queryset(
             employees,
+            request
+        )
+
+        # Serializer
+        serializer = EmployeeSerializer(
+            paginated_employees,
             many=True
         )
 
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
+        # Response
+        return paginator.get_paginated_response(
+            serializer.data
         )
+        
+        
