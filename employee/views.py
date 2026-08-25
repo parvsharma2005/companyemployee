@@ -8,6 +8,10 @@ from rest_framework import status
 from .models import Employee
 from .serializers import *
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
+
+from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers import LoginSerializer
 
 class EmployeeListCreateView(APIView):
 
@@ -276,6 +280,30 @@ class EmployeeSearchView(APIView):
         # Response
         return paginator.get_paginated_response(
             serializer.data
+        )
+class LoginView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        account = serializer.validated_data["account"]
+
+        refresh = RefreshToken()
+        
+        refresh["phone"] = account.phone
+        refresh["email"] = account.email
+
+        return Response(
+            {
+                "message": "Login successful",
+                "refresh": str(refresh),
+                "access": str(refresh.access_token)
+            },
+            status=status.HTTP_200_OK
         )
         
         
