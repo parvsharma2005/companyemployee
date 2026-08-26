@@ -3,6 +3,24 @@ from .views import *
 
 
 urlpatterns = [
+    
+    path(
+        "register/",
+        EmployeeRegisterView.as_view(),
+        name="employee-register"
+    ),
+    
+    path(
+    "forgot-password/",
+    ForgotPasswordView.as_view(),
+    name="forgot-password"
+),
+    
+    path(
+    "login/",
+    LoginView.as_view(),
+    name="login"
+    ),
 
     path(
         "employees/",
@@ -10,25 +28,30 @@ urlpatterns = [
         name="employee-list-create"
     ),
     
-    path(
+    
+]
+    
+path(
     "employees/search/",
     EmployeeSearchView.as_view(),
     name="employee-search"
 ),
 
-    path(
+path(
         "employees/bulk-upload/",
         EmployeeBulkUploadView.as_view(),
         name="employee-bulk-upload"
     ),
 
-    path(
+path(
+        "bulk-create/",
+        EmployeeBulkCreateView.as_view()
+    ),
+
+path(
         "employees/<uuid:id>/",
         EmployeeDetailUpdateView.as_view(),
         name="employee-detail-update"
     ),
-    path(
-        "bulk-create/",
-        EmployeeBulkCreateView.as_view()
-    ),
-]
+
+

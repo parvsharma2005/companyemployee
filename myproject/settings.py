@@ -11,6 +11,17 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
+
+
+
+
+AUTH_USER_MODEL = "employee.EmployeeAccount"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,9 +48,26 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # Third party
+    "rest_framework",
+    
+    
     'company',
     'employee',
-    'department'
+    'department',
+    # HRMS modules
+    "attendance",
+    "assets",
+    "documents",
+    "expense",
+    "history",
+    "imprest",
+    "investment",
+    "leave",
+    "performance",
+    "recruitment",
+    "task"
     
 ]
 

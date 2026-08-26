@@ -17,5 +17,5 @@ class Company(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     established = models.DateField()
     
-    
-    
+    def __str__(self):
+        return self.name

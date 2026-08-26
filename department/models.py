@@ -20,13 +20,24 @@ class Department(models.Model):
         related_name="departments"
     )
 
-    name = models.CharField(max_length=200)
+    name = models.CharField(
+        max_length=150
+    )
 
-    status = models.BooleanField(default=True)
+    description = models.TextField(
+        blank=True
+    )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
 
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    class Meta:
+        ordering = ["name"]
 
     def __str__(self):
         return self.name

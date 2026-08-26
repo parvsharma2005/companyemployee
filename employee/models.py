@@ -1,12 +1,21 @@
 from django.db import models
-from company.models import Company
 from department.models import Department
 import uuid
 
-from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    PermissionsMixin
+)
+class EmployeeAccount(
+    AbstractBaseUser,
+    PermissionsMixin
+):
 
-
-class EmployeeAccount(models.Model):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
 
     phone = models.CharField(
         max_length=10,
@@ -17,34 +26,24 @@ class EmployeeAccount(models.Model):
         unique=True
     )
 
-    password = models.CharField(
-        max_length=128
-    )
-
-    def set_password(self, password):
-        self.password = make_password(password)
-
-    def check_password(self, password):
-        return check_password(password, self.password)
+    USERNAME_FIELD = "phone"
+    REQUIRED_FIELDS = ["email"]
 
     def __str__(self):
         return self.phone
 
-
 class Employee(models.Model):
-
+        
     id = models.UUIDField(
-        primary_key=True,
         default=uuid.uuid4,
-        editable=False
+        editable=False,
+        primary_key=True,
     )
 
     user = models.OneToOneField(
         EmployeeAccount,
         on_delete=models.CASCADE,
         related_name="employee",
-        null=True,
-        blank=True
     )
 
     department = models.ForeignKey(
@@ -69,3 +68,152 @@ class Employee(models.Model):
     def __str__(self):
         return self.name
     
+class EmployeeAddress(models.Model):
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name="addresses"
+    )
+
+    address_type = models.CharField(
+        max_length=50
+    )
+
+    address = models.TextField()
+
+    city = models.CharField(
+        max_length=100
+    )
+
+    state = models.CharField(
+        max_length=100
+    )
+
+    country = models.CharField(
+        max_length=100,
+        default="India"
+    )
+
+    pincode = models.CharField(
+        max_length=10
+    )
+
+    def __str__(self):
+        return f"{self.employee.name} - {self.address_type}"
+    
+class EmployeeEducation(models.Model):
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name="education"
+    )
+
+    qualification = models.CharField(
+        max_length=150
+    )
+
+    institution = models.CharField(
+        max_length=200
+    )
+
+    specialization = models.CharField(
+        max_length=150,
+        blank=True
+    )
+
+    start_year = models.PositiveIntegerField()
+
+    end_year = models.PositiveIntegerField()
+
+    percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+
+    def __str__(self):
+        return f"{self.employee.name} - {self.qualification}"
+    
+class EmployeeExperience(models.Model):
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name="experiences"
+    )
+
+    company_name = models.CharField(
+        max_length=200
+    )
+
+    designation = models.CharField(
+        max_length=150
+    )
+
+    start_date = models.DateField()
+
+    end_date = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    description = models.TextField(
+        blank=True
+    )
+
+    def __str__(self):
+        return f"{self.employee.name} - {self.company_name}"
+    
+class EmergencyContact(models.Model):
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name="emergency_contacts"
+    )
+
+    name = models.CharField(
+        max_length=150
+    )
+
+    relationship = models.CharField(
+        max_length=100
+    )
+
+    phone = models.CharField(
+        max_length=15
+    )
+
+    address = models.TextField(
+        blank=True
+    )
+
+    def __str__(self):
+        return f"{self.employee.name} - {self.name}"
