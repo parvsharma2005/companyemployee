@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -61,4 +63,66 @@ urlpatterns = [
         "api/employees/",
         include("employee.urls")
     ),
+
+    # HRMS Modules
+    path(
+        "api/attendance/",
+        include("attendance.urls")
+    ),
+
+    path(
+        "api/leave/",
+        include("leave.urls")
+    ),
+
+    path(
+        "api/assets/",
+        include("assets.urls")
+    ),
+
+    path(
+        "api/documents/",
+        include("documents.urls")
+    ),
+
+    path(
+        "api/expense/",
+        include("expense.urls")
+    ),
+
+    path(
+        "api/history/",
+        include("history.urls")
+    ),
+
+    path(
+        "api/imprest/",
+        include("imprest.urls")
+    ),
+
+    path(
+        "api/investment/",
+        include("investment.urls")
+    ),
+
+    path(
+        "api/performance/",
+        include("performance.urls")
+    ),
+
+    path(
+        "api/recruitment/",
+        include("recruitment.urls")
+    ),
+
+    path(
+        "api/task/",
+        include("task.urls")
+    ),
 ]
+
+
+urlpatterns += static(
+    settings.MEDIA_URL,
+    document_root=settings.MEDIA_ROOT
+)

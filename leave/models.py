@@ -30,7 +30,8 @@ class LeaveType(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+
 class EmployeeLeaveBalance(models.Model):
 
     id = models.UUIDField(
@@ -68,7 +69,27 @@ class EmployeeLeaveBalance(models.Model):
     @property
     def available_days(self):
         return self.allocated_days - self.used_days
-    
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "employee",
+                    "leave_type",
+                    "year"
+                ],
+                name="unique_employee_leave_balance_per_year"
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.employee.name} - "
+            f"{self.leave_type.name} - "
+            f"{self.year}"
+        )
+
+
 class LeaveRequest(models.Model):
 
     STATUS_CHOICES = [
@@ -117,4 +138,7 @@ class LeaveRequest(models.Model):
     )
 
     def __str__(self):
-        return f"{self.employee.name} - {self.leave_type.name}"
+        return (
+            f"{self.employee.name} - "
+            f"{self.leave_type.name}"
+        )
