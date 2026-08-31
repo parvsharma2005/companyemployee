@@ -41,3 +41,4 @@ class AttendanceSerializer(serializers.ModelSerializer):
                 )
 
         return data
+    

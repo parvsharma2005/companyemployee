@@ -1,35 +1,22 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from .models import (
-    LeaveType,
     EmployeeLeaveBalance,
     LeaveRequest
 )
 
 from .serializers import (
-    LeaveTypeSerializer,
     EmployeeLeaveBalanceSerializer,
     LeaveRequestSerializer
 )
 
-
-class LeaveTypeViewSet(viewsets.ModelViewSet):
-
-    queryset = LeaveType.objects.all()
-
-    serializer_class = LeaveTypeSerializer
-
-    permission_classes = [
-        IsAuthenticated
-    ]
-
-
 class EmployeeLeaveBalanceViewSet(viewsets.ModelViewSet):
 
     queryset = EmployeeLeaveBalance.objects.select_related(
-        "employee",
-        "leave_type"
+        "employee"
     ).all()
 
     serializer_class = EmployeeLeaveBalanceSerializer
@@ -64,9 +51,9 @@ class EmployeeLeaveBalanceViewSet(viewsets.ModelViewSet):
                 year=year
             )
 
-        if leave_type_id:
+        if leave_type:
             queryset = queryset.filter(
-                leave_type_id=leave_type_id
+                leave_type=leave_type
             )
 
         return queryset
@@ -75,8 +62,7 @@ class EmployeeLeaveBalanceViewSet(viewsets.ModelViewSet):
 class LeaveRequestViewSet(viewsets.ModelViewSet):
 
     queryset = LeaveRequest.objects.select_related(
-        "employee",
-        "leave_type"
+        "employee"
     ).all()
 
     serializer_class = LeaveRequestSerializer
@@ -84,7 +70,7 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
     permission_classes = [
         IsAuthenticated
     ]
-
+    
     def get_queryset(self):
 
         queryset = super().get_queryset()
@@ -93,12 +79,12 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
             "employee"
         )
 
-        status = self.request.query_params.get(
-            "status"
+        leave_type = self.request.query_params.get(
+            "leave_type"
         )
 
-        leave_type_id = self.request.query_params.get(
-            "leave_type"
+        status_filter = self.request.query_params.get(
+            "status"
         )
 
         if employee_id:
@@ -106,14 +92,74 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
                 employee_id=employee_id
             )
 
-        if status:
+        if leave_type:
             queryset = queryset.filter(
-                status=status
+                leave_type=leave_type
             )
 
-        if leave_type_id:
+        if status_filter:
             queryset = queryset.filter(
-                leave_type_id=leave_type_id
+                status=status_filter
             )
 
         return queryset
+
+    # your get_queryset() here
+
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_path="approve"
+    )
+    def approve(self, request, pk=None):
+
+        leave_request = self.get_object()
+
+        if leave_request.status != "pending":
+            return Response(
+                {
+                    "error": "Only pending leave requests can be approved."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        leave_request.status = "approved"
+        leave_request.save()
+
+        return Response(
+            {
+                "message": "Leave approved successfully.",
+                "status": leave_request.status
+            },
+            status=status.HTTP_200_OK
+        )
+        
+         # ADD REJECT HERE
+
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_path="reject"
+    )
+    def reject(self, request, pk=None):
+
+        leave_request = self.get_object()
+
+        if leave_request.status != "pending":
+            return Response(
+                {
+                    "error": "Only pending leave requests can be rejected."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        leave_request.status = "rejected"
+        leave_request.save()
+
+        return Response(
+            {
+                "message": "Leave rejected successfully.",
+                "status": leave_request.status
+            },
+            status=status.HTTP_200_OK
+        )

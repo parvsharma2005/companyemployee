@@ -1,27 +1,12 @@
 from rest_framework import serializers
-
 from .models import (
-    LeaveType,
     EmployeeLeaveBalance,
     LeaveRequest
 )
-
-
-class LeaveTypeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = LeaveType
-        fields = [
-            "id",
-            "name",
-            "description",
-            "total_days",
-            "is_active",
-        ]
-
-        read_only_fields = [
-            "id",
-        ]
+from .enums import (
+    LeaveTypeEnum,
+    LeaveRequestStatusEnum
+)
 
 
 class EmployeeLeaveBalanceSerializer(serializers.ModelSerializer):
@@ -31,15 +16,14 @@ class EmployeeLeaveBalanceSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    leave_type_name = serializers.CharField(
-        source="leave_type.name",
-        read_only=True
-    )
-
     available_days = serializers.DecimalField(
         max_digits=6,
         decimal_places=2,
         read_only=True
+    )
+
+    leave_type = serializers.ChoiceField(
+        choices=LeaveTypeEnum.choices()
     )
 
     class Meta:
@@ -50,7 +34,6 @@ class EmployeeLeaveBalanceSerializer(serializers.ModelSerializer):
             "employee",
             "employee_name",
             "leave_type",
-            "leave_type_name",
             "year",
             "allocated_days",
             "used_days",
@@ -60,7 +43,6 @@ class EmployeeLeaveBalanceSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "employee_name",
-            "leave_type_name",
             "available_days",
         ]
 
@@ -72,10 +54,9 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    leave_type_name = serializers.CharField(
-        source="leave_type.name",
-        read_only=True
-    )
+    # leave_type = serializers.ChoiceField(
+    #     choices=LeaveTypeEnum.choices()
+    # )
 
     class Meta:
         model = LeaveRequest
@@ -85,7 +66,6 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
             "employee",
             "employee_name",
             "leave_type",
-            "leave_type_name",
             "start_date",
             "end_date",
             "reason",
@@ -97,8 +77,6 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "employee_name",
-            "leave_type_name",
-            "status",
             "created_at",
             "updated_at",
         ]
@@ -109,9 +87,15 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
         end_date = data.get("end_date")
 
         if start_date and end_date:
+
             if end_date < start_date:
                 raise serializers.ValidationError(
-                    "End date must be greater than or equal to start date."
+                    {
+                        "end_date": (
+                            "End date must be greater than "
+                            "or equal to start date."
+                        )
+                    }
                 )
 
         return data
