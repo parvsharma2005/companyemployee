@@ -16,6 +16,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "id",
             "user",
             "department",
+            "manager",
             "name",
             "email",
             "phone",
@@ -50,7 +51,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
             )
 
         # Check whether employee already exists
-        if Employee.objects.filter(
+        if self.instance is None:
+          if Employee.objects.filter(
             user=request.user
         ).exists():
 
@@ -58,7 +60,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
                 "user":
                 "An employee profile already exists for this account."
             })
-
         return data
 
     @transaction.atomic

@@ -45,6 +45,14 @@ class Employee(models.Model):
         on_delete=models.CASCADE,
         related_name="employee",
     )
+    
+    manager = models.ForeignKey(
+    "self",
+    on_delete=models.PROTECT,
+    null=True,
+    blank=True,
+    related_name="team_members"
+)
 
     department = models.ForeignKey(
         Department,

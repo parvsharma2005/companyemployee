@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "imprest",
     "investment",
     "leave",
+    "notification",
     "performance",
     "recruitment",
     "task"

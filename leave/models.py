@@ -63,6 +63,18 @@ class EmployeeLeaveBalance(models.Model):
 
 
 class LeaveRequest(models.Model):
+    
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    ]
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pending"
+    )
 
     id = models.UUIDField(
         primary_key=True,
@@ -94,6 +106,34 @@ class LeaveRequest(models.Model):
         choices=LeaveRequestStatusEnum.choices(),
         default=LeaveRequestStatusEnum.PENDING.value
     )
+    approved_by = models.ForeignKey(
+    "employee.Employee",
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name="approved_leave_requests"
+)
+
+    approved_at = models.DateTimeField(
+        auto_now=True
+)
+
+    rejected_by = models.ForeignKey(
+    "employee.Employee",
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name="rejected_leave_requests"
+)
+
+    rejected_at = models.DateTimeField(
+        auto_now=True
+)
+
+    manager_comment = models.TextField(
+    blank=True,
+    null=True
+)
 
     created_at = models.DateTimeField(
         auto_now_add=True

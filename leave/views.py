@@ -1,3 +1,5 @@
+from django.utils import timezone
+from rest_framework.views import APIView
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
@@ -12,6 +14,7 @@ from .serializers import (
     EmployeeLeaveBalanceSerializer,
     LeaveRequestSerializer
 )
+
 
 class EmployeeLeaveBalanceViewSet(viewsets.ModelViewSet):
 
@@ -51,9 +54,9 @@ class EmployeeLeaveBalanceViewSet(viewsets.ModelViewSet):
                 year=year
             )
 
-        if leave_type:
+        if leave_type_id:
             queryset = queryset.filter(
-                leave_type=leave_type
+                leave_type_id=leave_type_id
             )
 
         return queryset
@@ -70,7 +73,7 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
     permission_classes = [
         IsAuthenticated
     ]
-    
+
     def get_queryset(self):
 
         queryset = super().get_queryset()
@@ -115,26 +118,49 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
 
         leave_request = self.get_object()
 
-        if leave_request.status != "pending":
+        # Logged-in Employee
+        manager = request.user.employee
+
+        # -------------------------------------------------
+        # Check whether logged-in employee is the manager
+        # -------------------------------------------------
+
+        if leave_request.employee.manager_id != manager.id:
+
             return Response(
                 {
-                    "error": "Only pending leave requests can be approved."
+                    "detail":
+                    "You are not the manager of this employee."
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if leave_request.status != "pending":
+
+            return Response(
+                {
+                    "detail":
+                    "Only pending leave requests can be approved."
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         leave_request.status = "approved"
+        leave_request.approved_by = manager
+        leave_request.approved_at = timezone.now()
+
         leave_request.save()
 
+        serializer = self.get_serializer(
+            leave_request
+        )
+
         return Response(
-            {
-                "message": "Leave approved successfully.",
-                "status": leave_request.status
-            },
+            serializer.data,
             status=status.HTTP_200_OK
         )
-        
-         # ADD REJECT HERE
+
+    # ADD REJECT HERE
 
     @action(
         detail=True,
@@ -145,21 +171,211 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
 
         leave_request = self.get_object()
 
-        if leave_request.status != "pending":
+        manager = request.user.employee
+
+        if leave_request.employee.manager_id != manager.id:
+
             return Response(
                 {
-                    "error": "Only pending leave requests can be rejected."
+                    "detail":
+                    "You are not the manager of this employee."
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if leave_request.status != "pending":
+
+            return Response(
+                {
+                    "detail":
+                    "This leave request has already been processed."
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         leave_request.status = "rejected"
+        leave_request.rejected_by = manager
+        leave_request.rejected_at = timezone.now()
+
+        leave_request.save()
+
+        serializer = self.get_serializer(
+            leave_request
+        )
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
+
+class LeaveRequestApproveView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+
+        try:
+            leave_request = LeaveRequest.objects.get(pk=pk)
+
+        except LeaveRequest.DoesNotExist:
+
+            return Response(
+                {"detail": "Leave request not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        manager = request.user.employee
+
+        # Check that this employee's manager
+        # is the logged-in user
+
+        if leave_request.employee.manager_id != manager.id:
+
+            return Response(
+                {
+                    "detail":
+                    "You are not the manager of this employee."
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if leave_request.status != "pending":
+
+            return Response(
+                {
+                    "detail":
+                    "Only pending leave requests can be approved."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        leave_request.status = "approved"
+        leave_request.approved_by = manager
+        leave_request.approved_at = timezone.now()
+
+        leave_request.manager_comment = request.data.get(
+            "manager_comment",
+            ""
+        )
+
         leave_request.save()
 
         return Response(
             {
-                "message": "Leave rejected successfully.",
-                "status": leave_request.status
+                "message":
+                "Leave request approved successfully.",
+
+                "leave_request_id":
+                leave_request.id,
+
+                "status":
+                leave_request.status,
+
+                "approved_by":
+                manager.id,
+
+                "approved_at":
+                leave_request.approved_at,
+
+                "manager_comment":
+                leave_request.manager_comment,
             },
+            status=status.HTTP_200_OK
+        )
+
+
+class LeaveRequestRejectView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+
+        try:
+            leave_request = LeaveRequest.objects.get(pk=pk)
+
+        except LeaveRequest.DoesNotExist:
+
+            return Response(
+                {"detail": "Leave request not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        manager = request.user.employee
+
+        if leave_request.employee.manager_id != manager.id:
+
+            return Response(
+                {
+                    "detail":
+                    "You are not the manager of this employee."
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if leave_request.status != "pending":
+
+            return Response(
+                {
+                    "detail":
+                    "Only pending leave requests can be rejected."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        leave_request.status = "rejected"
+        leave_request.rejected_by = manager
+        leave_request.rejected_at = timezone.now()
+
+        leave_request.manager_comment = request.data.get(
+            "manager_comment",
+            ""
+        )
+
+        leave_request.save()
+
+        return Response(
+            {
+                "message":
+                "Leave request rejected successfully.",
+
+                "leave_request_id":
+                leave_request.id,
+
+                "status":
+                leave_request.status,
+
+                "rejected_by":
+                manager.id,
+
+                "rejected_at":
+                leave_request.rejected_at,
+
+                "manager_comment":
+                leave_request.manager_comment,
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class ManagerLeaveRequestListView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        manager = request.user.employee
+
+        leave_requests = LeaveRequest.objects.filter(
+            employee__manager=manager
+        ).order_by("-created_at")
+
+        serializer = LeaveRequestSerializer(
+            leave_requests,
+            many=True
+        )
+
+        return Response(
+            serializer.data,
             status=status.HTTP_200_OK
         )

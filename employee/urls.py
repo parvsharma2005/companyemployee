@@ -27,31 +27,28 @@ urlpatterns = [
         EmployeeListCreateView.as_view(),
         name="employee-list-create"
     ),
+
     
-    
-]
-    
-path(
+    path(
     "employees/search/",
     EmployeeSearchView.as_view(),
     name="employee-search"
 ),
 
-path(
+    path(
         "employees/bulk-upload/",
         EmployeeBulkUploadView.as_view(),
         name="employee-bulk-upload"
     ),
 
-path(
+    path(
         "bulk-create/",
         EmployeeBulkCreateView.as_view()
     ),
 
-path(
+    path(
         "employees/<uuid:id>/",
         EmployeeDetailUpdateView.as_view(),
         name="employee-detail-update"
     ),
-
-
+]

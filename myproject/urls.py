@@ -114,6 +114,11 @@ urlpatterns = [
         "api/recruitment/",
         include("recruitment.urls")
     ),
+    
+    path(
+        "api/notification/",
+        include("notification.urls")
+    ),
 
     path(
         "api/task/",

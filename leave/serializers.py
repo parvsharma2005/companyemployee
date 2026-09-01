@@ -70,6 +70,11 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
             "end_date",
             "reason",
             "status",
+            "approved_by",
+            "approved_at",
+            "rejected_by",
+            "rejected_at",
+            "manager_comment",
             "created_at",
             "updated_at",
         ]
@@ -77,8 +82,14 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "employee_name",
+            "status",
+            "approved_by",
+            "approved_at",
+            "rejected_by",
+            "rejected_at",
+            "manager_comment",
             "created_at",
-            "updated_at",
+            "updated_at"
         ]
 
     def validate(self, data):
