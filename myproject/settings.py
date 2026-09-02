@@ -68,6 +68,8 @@ INSTALLED_APPS = [
     "notification",
     "performance",
     "recruitment",
+    "audit_logs",
+    "dashboard",
     "task"
     
 ]

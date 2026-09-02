@@ -4,6 +4,7 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from audit_logs.utils import create_audit_log
 
 from .models import (
     EmployeeLeaveBalance,
@@ -150,6 +151,19 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
         leave_request.approved_at = timezone.now()
 
         leave_request.save()
+        create_audit_log(
+    user=request.user,
+    action="APPROVE",
+    module="Leave",
+    object_id=leave_request.id,
+    description="Manager approved the leave request",
+    new_data={
+        "status": leave_request.status,
+        "approved_by": str(manager.id),
+        "approved_at": str(leave_request.approved_at),
+    },
+    ip_address=request.META.get("REMOTE_ADDR"),
+)
 
         serializer = self.get_serializer(
             leave_request
@@ -198,6 +212,19 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
         leave_request.rejected_at = timezone.now()
 
         leave_request.save()
+        create_audit_log(
+    user=request.user,
+    action="REJECT",
+    module="Leave",
+    object_id=leave_request.id,
+    description="Manager rejected the leave request",
+    new_data={
+        "status": leave_request.status,
+        "rejected_by": str(manager.id),
+        "rejected_at": str(leave_request.rejected_at),
+    },
+    ip_address=request.META.get("REMOTE_ADDR"),
+)
 
         serializer = self.get_serializer(
             leave_request
@@ -260,6 +287,20 @@ class LeaveRequestApproveView(APIView):
         )
 
         leave_request.save()
+        create_audit_log(
+    user=request.user,
+    action="APPROVE",
+    module="Leave",
+    object_id=leave_request.id,
+    description="Manager approved the leave request",
+    new_data={
+        "status": leave_request.status,
+        "approved_by": str(manager.id),
+        "approved_at": str(leave_request.approved_at),
+        "manager_comment": leave_request.manager_comment,
+    },
+    ip_address=request.META.get("REMOTE_ADDR"),
+)
 
         return Response(
             {
@@ -333,6 +374,20 @@ class LeaveRequestRejectView(APIView):
         )
 
         leave_request.save()
+        create_audit_log(
+            user=request.user,
+            action="REJECT",
+            module="Leave",
+            object_id="leave_request.id",
+            description="Manager rejected the leave request",
+    new_data={
+        "status": leave_request.status,
+        "rejected_by": str(manager.id),
+        "rejected_at": str(leave_request.rejected_at),
+        "manager_comment": leave_request.manager_comment,
+    },
+    ip_address=request.META.get("REMOTE_ADDR"),
+        )
 
         return Response(
             {

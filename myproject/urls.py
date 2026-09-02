@@ -39,6 +39,10 @@ urlpatterns = [
         "company/",
         include("company.urls")
     ),
+    path(
+        "audit_logs/",
+        include("audit_logs.urls")
+    ),
 
     # Existing Department
     path(
@@ -118,6 +122,11 @@ urlpatterns = [
     path(
         "api/notification/",
         include("notification.urls")
+    ),
+    
+    path(
+        "api/dashboard/",
+        include("dashboard.urls")
     ),
 
     path(

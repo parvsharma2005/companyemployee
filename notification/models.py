@@ -40,3 +40,11 @@ class Notification(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def create_notification(recipient, title, message, notification_type):
+        Notification.objects.create(
+        recipient=recipient,
+        title=title,
+        message=message,
+        notification_type=notification_type
+    )

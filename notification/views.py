@@ -20,5 +20,4 @@ class NotificationListView(APIView):
             notifications,
             many=True
         )
-
         return Response(serializer.data)
