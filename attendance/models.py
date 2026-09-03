@@ -1,6 +1,5 @@
 from django.db import models
 import uuid
-
 from employee.models import Employee
 
 
@@ -53,6 +52,7 @@ class Attendance(models.Model):
 
     class Meta:
         ordering = ["-date"]
+
         constraints = [
             models.UniqueConstraint(
                 fields=["employee", "date"],

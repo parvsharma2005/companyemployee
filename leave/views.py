@@ -76,6 +76,9 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
     ]
 
     def get_queryset(self):
+        return LeaveRequest.objects.filter(
+            employee__user=self.request.user
+        )
 
         queryset = super().get_queryset()
 

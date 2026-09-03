@@ -10,6 +10,39 @@ class EmployeeAccount(
     AbstractBaseUser,
     PermissionsMixin
 ):
+    ROLE_CHOICES = (
+        ("employee", "Employee"),
+        ("manager", "Manager"),
+        ("hr", "HR"),
+        ("admin", "Admin"),
+    )
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    phone = models.CharField(
+        max_length=10,
+        unique=True
+    )
+
+    email = models.EmailField(
+        unique=True
+    )
+
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default="employee"
+    )
+
+    USERNAME_FIELD = "phone"
+    REQUIRED_FIELDS = ["email"]
+
+    def __str__(self):
+        return self.phone
 
     id = models.UUIDField(
         primary_key=True,

@@ -1,17 +1,11 @@
-from django.shortcuts import render
-
-# Create your views here.
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-
 from employee.models import Employee
 from attendance.models import Attendance
-from leave.models import EmployeeLeaveBalance, LeaveRequest
 from notification.models import Notification
-
-from .serializers import DashboardSerializer
+from leave.models import EmployeeLeaveBalance, LeaveRequest
 
 
 class DashboardAPIView(APIView):
@@ -23,77 +17,84 @@ class DashboardAPIView(APIView):
         try:
             employee = Employee.objects.get(user=request.user)
 
+            notifications = Notification.objects.filter(
+                recipient=request.user
+            )
             attendance = Attendance.objects.filter(
-                employee=employee
-            )
-
-            leave_balance = EmployeeLeaveBalance.objects.filter(
-                employee=employee
-            )
+    employee=employee
+)
+            leave_balances = EmployeeLeaveBalance.objects.filter(
+    employee=employee
+)
 
             leave_requests = LeaveRequest.objects.filter(
-                employee=employee
-            )
-
-            notifications = Notification.objects.filter(
-                employee=employee
-            )
-
-            data = {
-                "employee": {
-                    "id": str(employee.id),
-                    "name": employee.name,
-                    "email": employee.email,
-                    "phone": employee.phone,
-                    "department": (
-                        employee.department.name
-                        if employee.department
-                        else None
-                    ),
-                },
-
-                "attendance": {
-                    "total": attendance.count(),
-                    "present": attendance.filter(
-                        status="present"
-                    ).count(),
-                    "absent": attendance.filter(
-                        status="absent"
-                    ).count(),
-                    "leave": attendance.filter(
-                        status="leave"
-                    ).count(),
-                    "weekly_off": attendance.filter(
-                        status="weekly_off"
-                    ).count(),
-                },
-
-                "leave": {
-                    "total_leave_balances": leave_balance.count(),
-                    "total_requests": leave_requests.count(),
-                    "pending_requests": leave_requests.filter(
-                        status="pending"
-                    ).count(),
-                    "approved_requests": leave_requests.filter(
-                        status="approved"
-                    ).count(),
-                    "rejected_requests": leave_requests.filter(
-                        status="rejected"
-                    ).count(),
-                },
-
-                "notifications": {
-                    "total": notifications.count(),
-                    "unread": notifications.filter(
-                        is_read=False
-                    ).count(),
-                },
-            }
-
-            serializer = DashboardSerializer(data)
+    employee=employee
+)
 
             return Response(
-                serializer.data,
+                {
+                    "employee": {
+                        "id": str(employee.id),
+                        "name": employee.name,
+                        "email": employee.email,
+                        "phone": employee.phone,
+                        "department": (
+                            employee.department.name
+                            if employee.department
+                            else None
+                        ),
+                    },
+                    "attendance": {
+    "total": attendance.count(),
+    "present": attendance.filter(
+        status="present"
+    ).count(),
+    "absent": attendance.filter(
+        status="absent"
+    ).count(),
+    "leave": attendance.filter(
+        status="leave"
+    ).count(),
+    "weekly_off": attendance.filter(
+        status="weekly_off"
+    ).count(),
+    "holiday": attendance.filter(
+        status="holiday"
+    ).count(),
+},
+                    "leave": {
+    "balances": [
+        {
+            "leave_type": balance.leave_type,
+            "year": balance.year,
+            "allocated_days": balance.allocated_days,
+            "used_days": balance.used_days,
+            "available_days": balance.available_days,
+        }
+        for balance in leave_balances
+    ],
+
+    "requests": {
+        "total": leave_requests.count(),
+        "pending": leave_requests.filter(
+            status="pending"
+        ).count(),
+        "approved": leave_requests.filter(
+            status="approved"
+        ).count(),
+        "rejected": leave_requests.filter(
+            status="rejected"
+        ).count(),
+    },
+},
+
+                    "notifications": {
+                        "total": notifications.count(),
+                        "unread": notifications.filter(
+                            is_read=False
+                        ).count(),
+                    },
+                },
                 status=status.HTTP_200_OK
             )
 
