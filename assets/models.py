@@ -32,7 +32,8 @@ class Asset(models.Model):
 
     asset_code = models.CharField(
         max_length=100,
-        unique=True
+        unique=True,
+        editable=False
     )
 
     category = models.CharField(
@@ -61,6 +62,23 @@ class Asset(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True
     )
+    def save(self, *args, **kwargs):
+
+        if not self.asset_code:
+
+            last_asset = Asset.objects.order_by("-created_at").first()
+
+            if last_asset:
+                last_number = int(
+                    last_asset.asset_code.split("-")[-1]
+                )
+                next_number = last_number + 1
+            else:
+                next_number = 1
+
+            self.asset_code = f"AST-{next_number:04d}"
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.asset_name} - {self.asset_code}"

@@ -35,6 +35,7 @@ class AssetSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "company_name",
+            "asset_code",
             "employee_name",
             "created_at",
         ]

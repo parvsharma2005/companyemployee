@@ -41,3 +41,16 @@ class Department(models.Model):
 
     def __str__(self):
         return self.name
+
+student = {
+    "name" : "Rahul Kumar",
+    "subjects" : {
+        "physics" : 75,
+        "chemistry" : 73,
+        "math" : 82
+    }
+}
+new_dict={ "name":"neha", "age" : 21}
+
+student.update(new_dict)
+print(student)
