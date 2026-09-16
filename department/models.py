@@ -1,0 +1,56 @@
+from django.db import models
+
+# ...........................Department................................
+
+from company.models import Company
+import uuid
+
+
+class Department(models.Model):
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    company = models.ForeignKey(
+        Company,
+        on_delete=models.CASCADE,
+        related_name="departments"
+    )
+
+    name = models.CharField(
+        max_length=150
+    )
+
+    description = models.TextField(
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+student = {
+    "name" : "Rahul Kumar",
+    "subjects" : {
+        "physics" : 75,
+        "chemistry" : 73,
+        "math" : 82
+    }
+}
+new_dict={ "name":"neha", "age" : 21}
+
+student.update(new_dict)
+print(student)

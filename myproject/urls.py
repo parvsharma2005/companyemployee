@@ -15,10 +15,128 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('employee/',include('employee.urls')),
-    path('company/',include('company.urls'))
+
+    # Admin
+    path(
+        "admin/",
+        admin.site.urls
+    ),
+
+    # Existing Employee
+    path(
+        "employee/",
+        include("employee.urls")
+    ),
+
+    # Existing Company
+    path(
+        "company/",
+        include("company.urls")
+    ),
+    path(
+        "audit_logs/",
+        include("audit_logs.urls")
+    ),
+
+    # Existing Department
+    path(
+        "departments/",
+        include("department.urls")
+    ),
+
+    # API - Company
+    path(
+        "api/company/",
+        include("company.urls")
+    ),
+
+    # API - Department
+    path(
+        "api/departments/",
+        include("department.urls")
+    ),
+
+    # API - Employee
+    path(
+        "api/employees/",
+        include("employee.urls")
+    ),
+
+    # HRMS Modules
+    path(
+        "api/attendance/",
+        include("attendance.urls")
+    ),
+
+    path(
+        "api/leave/",
+        include("leave.urls")
+    ),
+
+    path(
+        "api/assets/",
+        include("assets.urls")
+    ),
+
+    path(
+        "api/documents/",
+        include("documents.urls")
+    ),
+
+    path(
+        "api/expense/",
+        include("expense.urls")
+    ),
+
+    path(
+        "api/history/",
+        include("history.urls")
+    ),
+
+    path(
+        "api/imprest/",
+        include("imprest.urls")
+    ),
+
+    path(
+        "api/investment/",
+        include("investment.urls")
+    ),
+
+    path(
+        "api/performance/",
+        include("performance.urls")
+    ),
+
+    path(
+        "api/recruitment/",
+        include("recruitment.urls")
+    ),
+    
+    path(
+        "api/notification/",
+        include("notification.urls")
+    ),
+    
+    path(
+        "api/dashboard/",
+        include("dashboard.urls")
+    ),
+
+    path(
+        "api/task/",
+        include("task.urls")
+    ),
 ]
+
+
+urlpatterns += static(
+    settings.MEDIA_URL,
+    document_root=settings.MEDIA_ROOT
+)

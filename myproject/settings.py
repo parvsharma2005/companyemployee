@@ -11,6 +11,17 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
+}
+
+
+
+
+AUTH_USER_MODEL = "employee.EmployeeAccount"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,11 +48,33 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # Third party
+    "rest_framework",
+    
+    
     'company',
     'employee',
-    
+    'department',
+    # HRMS modules
+    "attendance",
+    "assets",
+    "documents",
+    "expense",
+    "history",
+    "imprest",
+    "investment",
+    "leave",
+    "notification",
+    "performance",
+    "recruitment",
+    "audit_logs",
+    "dashboard",
+    "task"
     
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -129,3 +162,13 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+}
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
